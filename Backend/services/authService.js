@@ -7,13 +7,22 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-async function registerUser({ name, email, password }) {
+async function registerUser({ name, email, password,isAdmin=null }) {
   const existingUser = await User.findOne({ email });
   if (existingUser) throw new Error('User already exists');
+console.log(name,email,password,isAdmin);
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await User.create({ name, email, password: hashedPassword });
+  if(!isAdmin)
+  {
 
+    const user = await User.create({ name, email, password: hashedPassword });
+  }
+else
+{
+    const user = await User.create({ name, email, password: hashedPassword ,isAdmin:true});
+
+}
   return user;
 }
 
