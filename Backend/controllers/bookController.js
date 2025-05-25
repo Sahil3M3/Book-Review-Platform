@@ -3,6 +3,7 @@ const bookService = require('../services/bookService');
 exports.getBooks = async (req, res) => {
   try {
     const result = await bookService.getAllBooks(req.query);
+    
     res.json(result);
   } catch (err) {
     res.status(500).json({ message: err.message });

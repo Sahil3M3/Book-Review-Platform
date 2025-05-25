@@ -17,13 +17,13 @@ console.log(name,email,password,isAdmin);
   {
 
     const user = await User.create({ name, email, password: hashedPassword });
+    return user;
   }
 else
 {
     const user = await User.create({ name, email, password: hashedPassword ,isAdmin:true});
-
+return user;
 }
-  return user;
 }
 
 async function loginUser({ email, password }) {
