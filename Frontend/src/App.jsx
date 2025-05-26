@@ -4,6 +4,7 @@ import Books from './pages/Books';
 import BookDetails from './pages/BookDetails';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Profile from './pages/Profile';
 import Layout from './components/Layout'; // You can create a layout with Header/Footer
 
 function App() {
@@ -15,7 +16,7 @@ function App() {
           <Route path="/books/:id" element={<BookDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          {/* <Route path="/profile" element={<Profile />} /> */}
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </Layout>
   );

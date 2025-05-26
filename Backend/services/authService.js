@@ -50,7 +50,33 @@ async function loginUser({ email, password }) {
   };
 }
 
+const getUserById = async (userId) => {
+  
+  const user = await User.findById(userId).select('-password');
+  return user;
+};
+
+const updateUser = async (userId, updates) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  user.name = updates.name || user.name;
+  user.email = updates.email || user.email;
+
+  const updatedUser = await user.save();
+  return {
+    _id: updatedUser._id,
+    name: updatedUser.name,
+    email: updatedUser.email,
+  };
+};
+
+
 module.exports = {
   registerUser,
-  loginUser
+  loginUser,
+  updateUser,getUserById
 };

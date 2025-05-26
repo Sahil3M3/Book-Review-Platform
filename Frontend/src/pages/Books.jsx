@@ -11,7 +11,7 @@ const Books = () => {
 
   const fetchBooks = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/books', {
+      const res = await axios.get(`http://localhost:${import.meta.env.VITE_PORT}/api/books`, {
         params: {
           search,
           genre,
@@ -57,7 +57,11 @@ const Books = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {books.map((book) => (
-          <div key={book._id} className="bg-white p-4 rounded shadow">
+             <Link  key={book._id}
+              to={`/books/${book._id}`}
+              className="text-blue-500 hover:underline block mt-2"
+            >
+          <div  className="bg-white hover:bg-amber-200 p-4 rounded shadow">
             <img
               src={book.imageUrl ||book.image ||book.coverImage ||'/default-book.jpg'}
               alt={book.title}
@@ -65,13 +69,10 @@ const Books = () => {
             />
             <h3 className="text-lg font-semibold">{book.title}</h3>
             <p className="text-sm text-gray-500">{book.author}</p>
-            <Link
-              to={`/books/${book._id}`}
-              className="text-blue-500 hover:underline block mt-2"
-            >
+        
               View Book
-            </Link>
           </div>
+            </Link>
         ))}
       </div>
 

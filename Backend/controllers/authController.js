@@ -17,3 +17,22 @@ exports.login = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+exports.getProfile = async (req, res) => {
+  
+  const user = await authService.getUserById(req.user.id);
+  
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+  
+  res.json(user);
+};
+
+
+exports.updateProfile = async (req, res) => {
+  console.log(req.user);
+  const updated = await authService.updateUser(req.user.id, req.body);
+  res.json(updated);
+};

@@ -9,7 +9,7 @@ const Home = () => {
   useEffect(() => {
     const fetchFeaturedBooks = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/books?limit=4');
+        const res = await axios.get(`http://localhost:${import.meta.env.VITE_PORT}/api/books?limit=4`);
         
         setFeaturedBooks(res.data.books);
         setLoading(false);
@@ -23,7 +23,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="space-y-8 p-5">
+    <div className="space-y-8 px-5">
       <section className="text-center py-8">
         <h1 className="text-4xl font-bold text-blue-700 mb-2">Welcome to BookVerse</h1>
         <p className="text-gray-600">Discover, read, and review your favorite books</p>
@@ -36,8 +36,11 @@ const Home = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {featuredBooks.map((book) => (
-              <div key={book._id} className="bg-white rounded shadow p-4">
-                {console.log(book.coverImage || book.image)                }
+                 <Link key={book._id}
+                  to={`/books/${book._id}`}
+                  className="mt-2 inline-block  text-blue-600 hover:underline"
+                >
+              <div  className="bg-white rounded hover:bg-amber-100 shadow p-4">
                 <img
                   src={book.coverImage || book.image}
                   alt={book.title}
@@ -45,13 +48,10 @@ const Home = () => {
                 />
                 <h3 className="font-bold text-lg mb-1">{book.title}</h3>
                 <p className="text-sm text-gray-500">{book.author}</p>
-                <Link
-                  to={`/books/${book._id}`}
-                  className="mt-2 inline-block text-blue-600 hover:underline"
-                >
+                
                   View Details
-                </Link>
               </div>
+                </Link>
             ))}
           </div>
         )}

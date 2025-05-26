@@ -18,10 +18,8 @@ const BookDetails = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const bookRes = await axios.get(`http://localhost:5000/api/books/${id}`);
-        const reviewsRes = await axios.get(`http://localhost:5000/api/reviews?bookId=${id}`);
-        console.log(reviewsRes);
-        
+        const bookRes = await axios.get(`http://localhost:${import.meta.env.VITE_PORT}/api/books/${id}`);
+        const reviewsRes = await axios.get(`http://localhost:${import.meta.env.VITE_PORT}/api/reviews?bookId=${id}`);
         setBook(bookRes.data);
         setReviews(reviewsRes.data.reviews);
       } catch (err) {
@@ -41,7 +39,7 @@ const BookDetails = () => {
     setSubmitting(true);
     try {
       await axios.post(
-        `http://localhost:5000/api/reviews`,
+        `http://localhost:${import.meta.env.VITE_PORT}/api/reviews`,
         { bookId: id, rating, comment },
         {
           headers: {
@@ -52,7 +50,7 @@ const BookDetails = () => {
       setComment('');
       setRating(5);
 
-      const updatedReviews = await axios.get(`http://localhost:5000/api/reviews?bookId=${id}`);
+      const updatedReviews = await axios.get(`http://localhost:${import.meta.env.VITE_PORT}/api/reviews?bookId=${id}`);
       setReviews(updatedReviews.data.reviews);
     } catch (err) {
       console.error('Failed to submit review', err);
@@ -69,7 +67,7 @@ const BookDetails = () => {
       {/* Book Info */}
       <div className="flex flex-col md:flex-row gap-6 bg-white shadow rounded p-6">
         <img
-          src={book.imageUrl ||book.coverImage|| '/default-book.jpg'}
+          src={book.imageUrl ||book.coverImage|| book.image||'/default-book.jpg'}
           alt={book.title}
           className="w-full md:w-60 h-80 object-cover rounded"
         />

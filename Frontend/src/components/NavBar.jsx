@@ -16,7 +16,7 @@ const Navbar = () => {
           <>
             <Link to="/profile" className="hover:text-blue-600 font-medium">Profile</Link>
             <button
-              onClick={() => dispatch(logoutUser())}
+              onClick={() => dispatch(logout())}
               className="text-red-500 hover:underline font-medium"
             >
               Logout

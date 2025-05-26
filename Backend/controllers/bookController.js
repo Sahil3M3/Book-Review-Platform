@@ -40,6 +40,12 @@ exports.updateBook = async (req, res) => {
   }
 };
 
+exports.bulkCreateBooks = async (req, res) => {
+  const books = req.body; // Expecting an array of books
+  const createdBooks = await bookService.createManyBooks(books);
+  res.status(201).json(createdBooks);
+};
+
 exports.deleteBook = async (req, res) => {
   try {
     const book = await bookService.deleteBook(req.params.id);

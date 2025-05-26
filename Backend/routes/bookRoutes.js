@@ -11,5 +11,6 @@ router.get('/:id', bookController.getBook);
 router.post('/', protect, adminOnly, bookController.createBook);
 router.put('/:id', protect, adminOnly, bookController.updateBook);
 router.delete('/:id', protect, adminOnly, bookController.deleteBook);
+router.post('/bulk', protect, bookController.bulkCreateBooks);
 
 module.exports = router;

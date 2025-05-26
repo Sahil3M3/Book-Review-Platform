@@ -47,7 +47,14 @@ async function createBook(bookData) {
 async function updateBook(id, bookData) {
   return await Book.findByIdAndUpdate(id, bookData, { new: true });
 }
-
+async function createManyBooks(bookList) {
+  console.log(bookList);
+  
+  if (!Array.isArray(bookList)) {
+    throw new Error('Expected an array of books');
+  }
+  return await Book.insertMany(bookList);
+}
 async function deleteBook(id) {
   return await Book.findByIdAndDelete(id);
 }
@@ -57,5 +64,6 @@ module.exports = {
   getBookById,
   createBook,
   updateBook,
-  deleteBook
+  deleteBook,
+  createManyBooks
 };
