@@ -19,7 +19,6 @@ const Books = () => {
           limit: 4,
         },
       });
-console.log(res);
 
       setBooks(res.data.books);
       setTotalPages(res.data.totalPages || 1);
@@ -33,10 +32,10 @@ console.log(res);
   }, [search, genre, page]);
 
   return (
-    <div className="space-y-4 ">
+    <div className="space-y-4 p-5">
       <h2 className="text-2xl font-bold">Browse Books</h2>
 
-      <div className="flex gap-4 ">
+      <div className="flex gap-4">
         <input
           type="text"
           placeholder="Search by title..."
@@ -56,9 +55,14 @@ console.log(res);
         </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {books.map((book) => (
           <div key={book._id} className="bg-white p-4 rounded shadow">
+            <img
+              src={book.imageUrl ||book.image ||book.coverImage ||'/default-book.jpg'}
+              alt={book.title}
+              className="w-full h-48 object-cover rounded mb-2"
+            />
             <h3 className="text-lg font-semibold">{book.title}</h3>
             <p className="text-sm text-gray-500">{book.author}</p>
             <Link

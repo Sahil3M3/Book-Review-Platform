@@ -5,112 +5,148 @@ import { useSelector } from 'react-redux';
 
 const BookDetails = () => {
   const { id } = useParams();
-  const [book, setBook] = useState(null);
-  const [reviews, setReviews] = useState([]);
-  const [comment, setComment] = useState('');
-  const [rating, setRating] = useState(5);
   const { user } = useSelector((state) => state.auth);
 
-  const fetchBook = async () => {
-    try {
-      const res = await axios.get(`http://localhost:5000/api/books/${id}`);
-      console.log(res);
-      
-      setBook(res.data);
-    } catch (err) {
-      console.error('Failed to load book:', err);
-    }
-  };
+  const [book, setBook] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const fetchReviews = async () => {
-    try {
-      const res = await axios.get(`/api/reviews?bookId=${id}`);
-      setReviews(res.data.reviews);
-    } catch (err) {
-      console.error('Failed to load reviews:', err);
-    }
-  };
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        const bookRes = await axios.get(`http://localhost:5000/api/books/${id}`);
+        const reviewsRes = await axios.get(`http://localhost:5000/api/reviews?bookId=${id}`);
+        console.log(reviewsRes);
+        
+        setBook(bookRes.data);
+        setReviews(reviewsRes.data.reviews);
+      } catch (err) {
+        console.error('Failed to fetch book or reviews', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDetails();
+  }, [id]);
+
+  const handleReviewSubmit = async (e) => {
     e.preventDefault();
+    if (!comment.trim()) return;
+
+    setSubmitting(true);
     try {
       await axios.post(
-        '/api/reviews',
+        `http://localhost:5000/api/reviews`,
         { bookId: id, rating, comment },
-        { headers: { Authorization: `Bearer ${user.token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
       );
       setComment('');
       setRating(5);
-      fetchReviews();
+
+      const updatedReviews = await axios.get(`http://localhost:5000/api/reviews?bookId=${id}`);
+      setReviews(updatedReviews.data.reviews);
     } catch (err) {
-      console.error('Error submitting review:', err);
+      console.error('Failed to submit review', err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    fetchBook();
-    fetchReviews();
-  }, [id]);
-
-  if (!book) return <p>Loading book details...</p>;
+  if (loading) return <div className="p-4">Loading...</div>;
+  if (!book) return <div className="p-4 text-red-600">Book not found.</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white shadow p-6 rounded">
-        <h2 className="text-2xl font-bold">{book.title}</h2>
-        <p className="text-gray-600">Author: {book.author}</p>
-        <p className="mt-2 text-gray-700">{book.description}</p>
+    <div className="p-6 max-w-5xl mx-auto space-y-8">
+      {/* Book Info */}
+      <div className="flex flex-col md:flex-row gap-6 bg-white shadow rounded p-6">
+        <img
+          src={book.imageUrl ||book.coverImage|| '/default-book.jpg'}
+          alt={book.title}
+          className="w-full md:w-60 h-80 object-cover rounded"
+        />
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold text-blue-700 mb-2">{book.title}</h1>
+          <p className="text-gray-600 text-lg mb-1">Author: <span className="font-medium">{book.author}</span></p>
+          <p className="text-gray-600 mb-4">Genre: <span className="capitalize">{book.genre}</span></p>
+          <p className="text-gray-700">{book.description}</p>
+        </div>
       </div>
 
-      <div>
-        <h3 className="text-xl font-semibold">Reviews</h3>
-        {reviews && (
-          <p>No reviews yet.</p>
-        ) && (
-          <ul className="space-y-4 mt-4">
+      {/* Reviews Section */}
+      <div className="bg-white shadow rounded p-6">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Reviews</h2>
+        {reviews.length === 0 ? (
+          <p className="text-gray-500">No reviews yet. Be the first to review this book!</p>
+        ) : (
+          <ul className="space-y-4">
             {reviews.map((rev) => (
-              <li key={rev._id} className="bg-gray-100 p-4 rounded">
-                <p className="text-sm text-gray-700">By: {rev.user?.name}</p>
-                <p className="text-yellow-600">⭐ {rev.rating}</p>
-                <p>{rev.comment}</p>
+              <li key={rev._id} className="border border-gray-100 rounded p-4 bg-gray-50">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm text-gray-700 font-medium">{rev.user?.name || 'Anonymous'}</span>
+                  <span className="text-yellow-500 font-semibold">⭐ {rev.rating}</span>
+                </div>
+                <p className="text-gray-700">{rev.comment}</p>
               </li>
             ))}
           </ul>
         )}
       </div>
 
+      {/* Submit Review */}
       {user && (
-        <form onSubmit={handleSubmit} className="bg-white shadow p-6 rounded mt-6">
-          <h3 className="text-lg font-semibold mb-2">Write a Review</h3>
-          <label className="block mb-2">
-            Rating:
-            <select
-              value={rating}
-              onChange={(e) => setRating(Number(e.target.value))}
-              className="ml-2 border p-1 rounded"
+        <div className="bg-white shadow rounded p-6">
+          <h3 className="text-xl font-semibold mb-4 text-gray-800">Write a Review</h3>
+          <form onSubmit={handleReviewSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="rating" className="block mb-1 font-medium text-gray-700">
+                Rating
+              </label>
+              <select
+                id="rating"
+                className="w-full border rounded p-2"
+                value={rating}
+                onChange={(e) => setRating(Number(e.target.value))}
+              >
+                {[5, 4, 3, 2, 1].map((num) => (
+                  <option key={num} value={num}>
+                    {num} - {['Excellent', 'Very Good', 'Good', 'Fair', 'Poor'][5 - num]}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="comment" className="block mb-1 font-medium text-gray-700">
+                Comment
+              </label>
+              <textarea
+                id="comment"
+                className="w-full border rounded p-2"
+                rows="4"
+                placeholder="Write your thoughts about the book..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+              disabled={submitting}
             >
-              {[1, 2, 3, 4, 5].map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-          </label>
-          <textarea
-            className="w-full border p-2 rounded mt-2"
-            placeholder="Write your review here..."
-            rows={4}
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            required
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white mt-3 px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Submit Review
-          </button>
-        </form>
+              {submitting ? 'Submitting...' : 'Submit Review'}
+            </button>
+          </form>
+        </div>
       )}
     </div>
   );
